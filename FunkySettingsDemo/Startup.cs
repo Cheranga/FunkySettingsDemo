@@ -1,10 +1,7 @@
-﻿using System;
-using FunkySettingsDemo;
+﻿using FunkySettingsDemo;
 using FunkySettingsDemo.Configurations;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host.Bindings;
-using Microsoft.Azure.WebJobs.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -13,49 +10,33 @@ using Microsoft.Extensions.Options;
 
 namespace FunkySettingsDemo
 {
-    public class CustomStartup : IWebJobsStartup
-    {
-        public void Configure(IWebJobsBuilder builder)
-        {
-            
-        }
-    }
-
     public class Startup : FunctionsStartup
     {
-        
-
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var services = builder.Services;
             //
-            // TODO: register dependencies
+            // Get the function app directory
             //
-
-            var executioncontextoptions = builder.Services.BuildServiceProvider()
-                .GetService<IOptions<ExecutionContextOptions>>().Value;
-            var currentDirectory = executioncontextoptions.AppDirectory;
-
-
+            var executionContextOptions = builder.Services.BuildServiceProvider().GetService<IOptions<ExecutionContextOptions>>().Value;
+            var currentDirectory = executionContextOptions.AppDirectory;
+            //
+            // Load the custom configuration files
+            //
             var config = new ConfigurationBuilder()
                 .SetBasePath(currentDirectory)
                 .AddJsonFile("databaseconfig.json", false)
                 .AddJsonFile("ordersapiconfig.json", false)
                 .AddEnvironmentVariables()
                 .Build();
-           
-
+            //
+            // Need to register the above setup configuration provider which includes the custom configuration files
+            //
             services.AddSingleton<IConfiguration>(config);
 
-            services.AddOptions<DatabaseConfig>().Configure<IConfiguration>((customSetting, configuration) =>
-            {
-                configuration.GetSection("DatabaseConfig").Bind(customSetting);
-            });
+            services.AddOptions<DatabaseConfig>().Configure<IConfiguration>((customSetting, configuration) => { configuration.GetSection("databaseconfig").Bind(customSetting); });
 
-            services.AddOptions<OrdersApiConfig>().Configure<IConfiguration>((customSetting, configuration) =>
-            {
-                configuration.GetSection("OrdersApiConfig").Bind(customSetting);
-            });
+            services.AddOptions<OrdersApiConfig>().Configure<IConfiguration>((customSetting, configuration) => { configuration.GetSection("ordersapiconfig").Bind(customSetting); });
 
 
             services.AddScoped(provider =>
