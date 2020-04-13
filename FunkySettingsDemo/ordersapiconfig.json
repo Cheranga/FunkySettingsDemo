@@ -1,0 +1,6 @@
+﻿{
+  "OrdersApiConfig": {
+    "url": "orders api url",
+    "apiKey": "api key of orders api"
+  }
+}

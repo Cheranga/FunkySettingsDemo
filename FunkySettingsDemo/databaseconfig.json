@@ -1,0 +1,6 @@
+﻿{
+  "DatabaseConfig": {
+    "connectionString": "connection string goes here",
+    "tableName": "tablename-demo"
+  }
+}
