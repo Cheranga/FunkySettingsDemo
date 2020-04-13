@@ -3,6 +3,7 @@ using FunkySettingsDemo;
 using FunkySettingsDemo.Configurations;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Azure.WebJobs.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,9 +32,13 @@ namespace FunkySettingsDemo
             // TODO: register dependencies
             //
 
-            
+            var executioncontextoptions = builder.Services.BuildServiceProvider()
+                .GetService<IOptions<ExecutionContextOptions>>().Value;
+            var currentDirectory = executioncontextoptions.AppDirectory;
+
+
             var config = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
+                .SetBasePath(currentDirectory)
                 .AddJsonFile("databaseconfig.json", false)
                 .AddJsonFile("ordersapiconfig.json", false)
                 .AddEnvironmentVariables()

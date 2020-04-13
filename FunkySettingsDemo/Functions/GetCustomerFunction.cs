@@ -29,7 +29,15 @@ namespace FunkySettingsDemo.Functions
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "customers")]
             HttpRequest request)
         {
-            return new OkResult();
+            var data = new
+            {
+                _databaseConfig.ConnectionString,
+                _databaseConfig.TableName,
+                _ordersApiConfig.Url,
+                _ordersApiConfig.ApiKey
+            };
+
+            return new OkObjectResult(data);
         }
     }
 }
